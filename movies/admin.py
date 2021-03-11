@@ -50,13 +50,39 @@ class MovieAdmin(admin.ModelAdmin):
     save_on_top = True
     save_as = True
     list_editable = ('draft',)
+    actions = ['publish', 'unpublish']
     form = MovieAdminForm
     # fields = (('actors', 'directors', 'genres'),)
 
     def get_image(self, obj):
         return mark_safe(f'<img src={obj.poster.url} width = "70" height = "100">')
 
-    get_image.short_description = "Изображение"
+    get_image.short_description = "Постер"
+
+    def unpublish(self, request, queryset):
+        row_update = queryset.update(draft=True)
+        if row_update == 1:
+            message_bit = '1 запись была обновлена'
+        else:
+            message_bit = f'{row_update} записей были обновлены'
+        self.message_user(request, f'{message_bit}')
+
+    def publish(self, request, queryset):
+        row_update = queryset.update(draft=False)
+        if row_update == 1:
+            message_bit = '1 запись была обновлена'
+        else:
+            message_bit = f'{row_update} записей были обновлены'
+        self.message_user(request, f'{message_bit}')
+
+    publish.short_description = 'Опубликовать'
+    unpublish.short_description = 'Снять с публикации'
+
+
+
+
+
+
 
 
 @admin.register(Reviews)
